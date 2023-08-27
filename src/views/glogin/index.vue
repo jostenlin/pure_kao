@@ -27,7 +27,7 @@ const handleLogoutClick = () => auth.logout();
     <div>
       <el-button type="danger" @click="handleLogoutClick">Logout</el-button>
       <el-button type="primary" @click="handleLoginWithGoogleClick">
-        Login with Google：hi
+        Login with Google
       </el-button>
       <br />
       <ul>
