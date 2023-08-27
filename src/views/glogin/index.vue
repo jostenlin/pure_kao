@@ -2,49 +2,92 @@
 defineOptions({
   name: "glogin"
 });
-import { useAuth } from "@/composables/auth/auth.composable";
-import { onBeforeMount, onUnmounted } from "vue";
+import { ref, onMounted } from "vue";
+import firebaseConfig from "@/services/firebaseConfig";
 
-const auth = useAuth();
+// v9 compat packages are API compatible with v8 code
+import firebase from "firebase/compat/app";
+import * as firebaseui from "firebaseui";
+import "firebaseui/dist/firebaseui.css";
+import { getAuth, signOut } from "firebase/auth";
 
-onBeforeMount(() => {
-  auth.watchAuthState();
-});
+firebase.initializeApp(firebaseConfig);
+const auth = getAuth();
 
-onUnmounted(() => {
-  auth.unwatchAuthState();
-});
+const user = ref(null);
+const isSignedIn = ref(false);
 
-const handleLoginWithGoogleClick = () => {
-  auth.loginInWithGoogle();
+const uiConfig = {
+  signInFlow: "redirect",
+  signinSuccessUrl: "http://localhost:8080/",
+  signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
+  callbacks: {
+    signInSuccessWithAuthResult(authResult: any) {
+      user.value = authResult.user.displayName;
+      console.log(authResult);
+      isSignedIn.value = true;
+      console.log("Signed in by user " + user.value);
+      // so it doesn't refresh the page
+      return false;
+    },
+    uiShown() {
+      // The widget is rendered.
+      // Hide the loader.
+      const loader = document.getElementById("loader");
+      if (loader) {
+        loader.style.display = "none";
+      }
+    }
+  }
 };
 
-const handleLogoutClick = () => auth.logout();
+// Initialize the FirebaseUI Widget using Firebase.
+const ui = new firebaseui.auth.AuthUI(firebase.auth());
+
+onMounted(() => {
+  ui.start("#firebaseui-auth-container", uiConfig);
+});
+
+const handleSignOut = async () => {
+  try {
+    await signOut(auth);
+    user.value = null;
+    isSignedIn.value = false;
+    console.log("Signed out");
+    ui.start("#firebaseui-auth-container", uiConfig);
+  } catch (error) {
+    // An error happened.
+    console.log(error);
+  }
+};
 </script>
 
 <template>
-  <div :class="$style.wrapper">
-    <div>
-      <el-button type="danger" @click="handleLogoutClick">Logout</el-button>
-      <el-button type="primary" @click="handleLoginWithGoogleClick">
-        Login with Google
-      </el-button>
-      <br />
-      <ul>
-        <li>hasFailed: {{ auth.hasFailed }}</li>
-        <li>isLoading: {{ auth.isLoading }}</li>
-        <li>error: {{ auth.error }}</li>
-      </ul>
-
-      <pre>
-        {{ auth.user }}
-      </pre>
+  <div class="hello">
+    <h1>{{ msg }}</h1>
+    <h2 v-if="user">Signed In User: {{ user }}</h2>
+    <div id="firebaseui-auth-container" />
+    <div id="loader">Loading...</div>
+    <br />
+    <div v-if="isSignedIn">
+      <button @click="handleSignOut">Sign Out</button>
     </div>
   </div>
 </template>
 
-<style module>
-.wrapper {
-  padding: 20px;
+<style scoped>
+h3 {
+  margin: 40px 0 0;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  display: inline-block;
+  margin: 0 10px;
+}
+a {
+  color: #42b983;
 }
 </style>

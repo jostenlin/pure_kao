@@ -8,10 +8,6 @@ import { MotionPlugin } from "@vueuse/motion";
 // import { useEcharts } from "@/plugins/echarts";
 import { injectResponsiveStorage } from "@/utils/responsive";
 
-// 初始化 Firebase App
-import { setup as setupFirebase } from "@/services/firebase.service";
-setupFirebase();
-
 // import Table from "@pureadmin/table";
 // import PureDescriptions from "@pureadmin/descriptions";
 
