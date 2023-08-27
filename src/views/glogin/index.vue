@@ -25,7 +25,10 @@ const handleLogoutClick = () => auth.logout();
 <template>
   <div :class="$style.wrapper">
     <div>
-      <button @click="handleLoginWithGoogleClick">Login with Google</button>
+      <el-button type="danger" @click="handleLogoutClick">Logout</el-button>
+      <el-button type="primary" @click="handleLoginWithGoogleClick">
+        Login with Google
+      </el-button>
       <br />
       <ul>
         <li>hasFailed: {{ auth.hasFailed }}</li>
@@ -35,10 +38,8 @@ const handleLogoutClick = () => auth.logout();
 
       <pre>
         {{ auth.user }}
-    </pre
-      >
+      </pre>
     </div>
-    <button @click="handleLogoutClick">Logout</button>
   </div>
 </template>
 

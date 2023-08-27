@@ -2,7 +2,8 @@ import {
   getAuth,
   GoogleAuthProvider,
   onAuthStateChanged,
-  signInWithPopup,
+  // signInWithPopup,
+  signInWithRedirect,
   signOut,
   Unsubscribe,
   User
@@ -42,8 +43,7 @@ export const useAuth = () => {
     localError.value = null;
 
     try {
-      const result = await signInWithPopup(auth, provider);
-
+      const result = await signInWithRedirect(auth, provider);
       localUser.value = result.user;
     } catch (error) {
       hasFailed.value = true;
