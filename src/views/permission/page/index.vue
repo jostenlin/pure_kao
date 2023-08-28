@@ -17,6 +17,7 @@ const elStyle = computed((): CSSProperties => {
 });
 
 const username = ref(useUserStoreHook()?.username);
+const email = ref(useUserStoreHook()?.email);
 
 const options = [
   {
@@ -30,15 +31,15 @@ const options = [
 ];
 
 function onChange() {
-  useUserStoreHook()
-    .loginByUsername({ username: username.value, password: "admin123" })
-    .then(res => {
-      if (res.success) {
-        storageSession().removeItem("async-routes");
-        usePermissionStoreHook().clearAllCachePage();
-        initRouter();
-      }
-    });
+  // useUserStoreHook()
+  //   .loginByUsername({ username: username.value, password: "admin123" })
+  //   .then(res => {
+  //     if (res.success) {
+  //       storageSession().removeItem("async-routes");
+  //       usePermissionStoreHook().clearAllCachePage();
+  //       initRouter();
+  //     }
+  //   });
 }
 </script>
 
@@ -51,6 +52,9 @@ function onChange() {
       <template #header>
         <div class="card-header">
           <span>当前角色：{{ username }}</span>
+        </div>
+        <div class="card-header">
+          <span>電子郵件：{{ email }}</span>
         </div>
       </template>
       <el-select v-model="username" @change="onChange">

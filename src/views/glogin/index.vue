@@ -12,11 +12,17 @@ import "firebaseui/dist/firebaseui.css";
 import { getAuth, signOut } from "firebase/auth";
 import { id } from "element-plus/es/locale";
 
+import { useUserStoreHook } from "@/store/modules/user";
+import { initRouter, getTopMenu } from "@/router/utils";
+import { useRouter } from "vue-router";
+import { message } from "@/utils/message";
+
 firebase.initializeApp(firebaseConfig);
 const auth = getAuth();
 
 const user = ref(null);
 const isSignedIn = ref(false);
+const router = useRouter();
 
 // 使用 async/await 獲取 ID Token
 const getIdToken = async (user: any) => {
@@ -29,9 +35,20 @@ const getIdToken = async (user: any) => {
 };
 
 // 自訂登入流程
-const customLoginFlow = (idToken: string) => {
+const customLoginFlow = async (idtoken: string) => {
   // ...您的自訂邏輯...
-  console.log("idtoken=" + idToken);
+  useUserStoreHook()
+    .loginByUsername({ idtoken })
+    .then(res => {
+      // console.log(res);
+      if (res.success) {
+        // 获取後端路由(動態路由)
+        initRouter().then(() => {
+          // router.push(getTopMenu(true).path);
+          message("登录成功", { type: "success" });
+        });
+      }
+    });
 };
 
 const uiConfig = {
@@ -43,11 +60,13 @@ const uiConfig = {
       user.value = authResult.user.displayName;
       getIdToken(authResult.user).then(idToken => {
         if (idToken) {
-          customLoginFlow(idToken);
+          customLoginFlow(idToken).then(() => {
+            // 自訂登入流程完成後，轉跳到登入成功頁面
+          });
         }
       });
       isSignedIn.value = true;
-      console.log("Signed in by user " + user.value);
+      // console.log("Signed in by user " + user.value);
       // so it doesn't refresh the page
       return false;
     },
